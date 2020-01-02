@@ -5,6 +5,7 @@ provider "aws" {
 
 resource "aws_security_group" "web_sg" {
    vpc_id = "${var.vpc_id}"
+   name = "${var.project}_sg_01"
    ingress {
       cidr_blocks = ["0.0.0.0/0"]
       ipv6_cidr_blocks = ["::/0"]
