@@ -13,3 +13,9 @@ output "private_subnet_id" {
     value = "${aws_subnet.private_az_b.id}"
 }
 
+/*
+output "vpc_eip_id" {
+  value = "${aws_eip.nat_eip.id}"
+}
+*/
+
