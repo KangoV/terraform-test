@@ -3,9 +3,9 @@ provider "aws" {
   region = "${var.region}"
 }
 
-resource "aws_security_group" "web_sg" {
+resource "aws_security_group" "web_sg_01" {
   vpc_id = "${var.vpc_id}"
-  name   = "${var.project}_sg_01"
+  name   = "${var.project}_web_sg_01"
   ingress {
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
@@ -27,7 +27,29 @@ resource "aws_security_group" "web_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name    = "${var.project}_sg_01"
+    Name    = "${var.project}_web_sg_01"
+    Project = "${var.project}"
+  }
+}
+
+resource "aws_security_group" "db_sg_01" {
+  vpc_id = "${var.vpc_id}"
+  name   = "${var.project}_db_sg_01"
+  ingress {
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+    protocol         = "tcp"
+    to_port          = 22
+    from_port        = 22
+  }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = {
+    Name    = "${var.project}_db_sg_01"
     Project = "${var.project}"
   }
 }
@@ -39,11 +61,13 @@ resource "aws_key_pair" "deployer" {
 
 // INSTANCES 
 
+/*
+
 resource "aws_instance" "web_server_01" {
   ami                         = "ami-0dacb0c129b49f529"
   instance_type               = "t2.micro"
   key_name                    = "${aws_key_pair.deployer.key_name}"
-  vpc_security_group_ids      = ["${aws_security_group.web_sg.id}"]
+  vpc_security_group_ids      = ["${aws_security_group.web_sg_01.id}"]
   subnet_id                   = "${var.public_subnet_id}"
   associate_public_ip_address = true
   user_data                   = <<EOF
@@ -56,7 +80,7 @@ resource "aws_instance" "web_server_01" {
       echo "<html><h1>Hello. Welcome To My Webpage</h1></html>"  >  index.html
    EOF
   tags = {
-    Name    = "${var.project}_in_web_01"
+    Name    = "${var.project}_web_inst_01"
     Project = "${var.project}"
   }
 }
@@ -64,12 +88,14 @@ resource "aws_instance" "web_server_01" {
 resource "aws_instance" "db_server_01" {
   ami                         = "ami-0dacb0c129b49f529"
   instance_type               = "t2.micro"
+  key_name                    = "${aws_key_pair.deployer.key_name}"
+  vpc_security_group_ids      = ["${aws_security_group.db_sg_01.id}"]
   subnet_id                   = "${var.private_subnet_id}"
   associate_public_ip_address = false
   tags = {
-    Name    = "${var.project}_in_db_01"
+    Name    = "${var.project}_db_inst_01"
     Project = "${var.project}"
   }
 }
 
-
+*/
