@@ -3,6 +3,11 @@ provider "aws" {
   region = "${var.region}"
 }
 
+data "aws_subnet" "public_subnet" {
+   id = "${var.public_subnet_id}"
+}
+
+
 resource "aws_security_group" "web_sg_01" {
   vpc_id = "${var.vpc_id}"
   name   = "${var.project}_web_sg_01"
@@ -32,15 +37,48 @@ resource "aws_security_group" "web_sg_01" {
   }
 }
 
+# ===================================================================================
+# Security group which allows (from public subnet):
+# * ICMP (echo) we want to be able to ping it
+# * HTTP/S 
+# * MuSQL
+# * SSH
+# ===================================================================================
+
+
+
 resource "aws_security_group" "db_sg_01" {
   vpc_id = "${var.vpc_id}"
   name   = "${var.project}_db_sg_01"
   ingress {
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
+    cidr_blocks      = ["${data.aws_subnet.public_subnet.cidr_block}"]
     protocol         = "tcp"
     to_port          = 22
     from_port        = 22
+  }
+  ingress {
+    cidr_blocks      = ["${data.aws_subnet.public_subnet.cidr_block}"]
+    protocol         = "tcp"
+    to_port          = 80
+    from_port        = 80
+  }
+  ingress {
+    cidr_blocks      = ["${data.aws_subnet.public_subnet.cidr_block}"]
+    protocol         = "tcp"
+    to_port          = 443
+    from_port        = 443
+  }
+  ingress {
+    cidr_blocks      = ["${data.aws_subnet.public_subnet.cidr_block}"]
+    protocol         = "tcp"
+    to_port          = 3306
+    from_port        = 3306
+  }
+  ingress {
+    cidr_blocks      = ["${data.aws_subnet.public_subnet.cidr_block}"]
+    protocol         = "icmp"
+    to_port          = -1
+    from_port        = -1
   }
   egress {
     from_port   = 0
